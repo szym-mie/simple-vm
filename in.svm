@@ -1,0 +1,7 @@
+// simple example
+
+// add two numbers in that file
+@import add.svm
+
+i32 7
+add
