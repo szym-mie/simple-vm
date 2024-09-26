@@ -35,3 +35,16 @@ See available instructions and directives:
 ./svm-asm.sh --man
 ```
 
+### Examples
+
+#### Looping (loop.svm)
+
+Loop and do nothing until counter is zero.
+```
+// counter
+i32 5
+// loop start : loc 1
+dec // decrement
+ez? // if zero put '1' on stack, '0' otherwise (doesn't consume previous value)
+jez 1 // if not zero jump back to loop start
+```
