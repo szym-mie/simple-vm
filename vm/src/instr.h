@@ -5,7 +5,7 @@
 
 #include "stack.h"
 
-#define INSTR_PARAMS struct stack *s, const int32_t *pv
+#define INSTR_PARAMS uint32_t *loc, struct stack *s, const int32_t *pv
 #define INSTR_FN_DEF(QN) void QN(INSTR_PARAMS)
 #define INSTR_DEF_ENTRY(ID, FN, PC) [ID] = { .fn = FN, .params_consumed = PC }
 
@@ -21,8 +21,10 @@ struct instr
 	int32_t *params;
 };
 
-#define CONSUME(PTR) stack_pop(s, PTR);
-#define PRODUCE(VAL) stack_push(s, VAL);
+#define CONSUME(PTR) stack_pop(s, PTR)
+#define PRODUCE(VAL) stack_push(s, VAL)
+#define NEXT_LOC() (*loc)++
+#define SET_LOC(LOC) *loc = LOC
 
 #endif//_INSTR_H_
 

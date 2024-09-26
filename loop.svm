@@ -1,0 +1,7 @@
+// counter
+i32 5
+// loop start : loc 1
+dec
+ez?
+jez 1
+// it works if zero is left on the stack

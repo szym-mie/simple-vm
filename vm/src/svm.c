@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "program.h"
-#include "set0.h"
+#include "ist0_set.h"
 
 int
 main(int argc, char *argv[])

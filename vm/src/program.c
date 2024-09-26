@@ -73,12 +73,12 @@ int program_run
 	uint32_t loc = program->start_loc;
 	struct instr *instr;
 
-	for (; loc < program->instr_count; loc++)
+	while (loc < program->instr_count)
 	{
 		instr = program->instrs + loc;
 		// TODO currently does not support location changes
 		// TODO return from instruction fn to serve exceptions
-		instr_defs[instr->id].fn(stack, instr->params);
+		instr_defs[instr->id].fn(&loc, stack, instr->params);
 	}
 
 	return 1;
