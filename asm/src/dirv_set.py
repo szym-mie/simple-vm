@@ -7,7 +7,8 @@ def dirv_import(parser_context, val_list, row):
     yield from parser_context.create_inner(filename).parse()
 
 def dirv_define(parser_context, val_list, row):
-    print('@define TODO')
+    name, replacement, *_rest = val_list
+    parser_context.symbols_dict[name] = replacement
     pass
 
 dirv_set = [

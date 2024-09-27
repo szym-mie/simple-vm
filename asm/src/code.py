@@ -128,11 +128,20 @@ class CodeParserContext:
         try:
             return int(token, base=0)
         except ValueError:
-            raise CodeParseError(
-                'not an int, labels coming soon',
-                token,
-                row
-            )
+            try:
+                return int(self.symbols_dict[token])
+            except ValueError:
+                raise CodeParseError(
+                    'cannot parse int',
+                    token,
+                    row
+                )
+            except KeyError:
+                raise CodeParseError(
+                    'unknown symbol',
+                    token,
+                    row
+                )
 
     def check_if_cyclic(self):
         context = self.parent_context
