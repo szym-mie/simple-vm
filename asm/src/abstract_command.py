@@ -19,13 +19,13 @@ class AbstractCommandPrototype:
         )
 
 class AbstractCommand:
-    def __init__(self, qname, val_list):
+    def __init__(self, qname, val_list, prototype):
         self.qname = qname
         self.val_list = val_list
-        self.prototype = None
+        self.prototype = prototype
 
-    def is_of_prototype(self, prototype):
-        is_params_valid = len(prototype.param_list) == len(self.val_list)
-        is_q_name_valid = prototype.qname == self.qname
+    def verify(self):
+        is_params_valid = len(self.prototype.param_list) == len(self.val_list)
+        is_q_name_valid = self.prototype.qname == self.qname
         return is_params_valid and is_q_name_valid
 

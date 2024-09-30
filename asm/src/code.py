@@ -41,7 +41,7 @@ class CodeParser:
     def try_find_prototype(command, prototype_dict, row):
         try:
             prototype = prototype_dict[command.qname]
-            if command.is_of_prototype(prototype):
+            if command.verify(prototype):
                 command.prototype = prototype
             else:
                 raise CodeParseError(

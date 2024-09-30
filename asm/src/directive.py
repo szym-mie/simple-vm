@@ -8,8 +8,8 @@ class DirectivePrototype(AbstractCommandPrototype):
 
 
 class Directive(AbstractCommand):
-    def __init__(self, qname, val_list):
-        super().__init__(qname, val_list)
+    def __init__(self, qname, val_list, prototype):
+        super().__init__(qname, val_list, prototype)
 
-    def execute(self, parser_context, row):
-        return self.prototype.func(parser_context, self.val_list, row)
+    def execute(self, parser_context):
+        return self.prototype.func(parser_context, self.val_list)

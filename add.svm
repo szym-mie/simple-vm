@@ -1,3 +1,6 @@
-i32 8
-i32 11
+@define a 8
+@define b 11
+
+i32 a
+i32 b
 add

@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 
+from asm.src.parser import Parser
 from binary import BinaryMetadata, BinaryWriter
-from code import CodeParser, CodeParserContext
 from ist0_set import ist0_set
 from dirv_set import dirv_set
 
@@ -41,8 +41,7 @@ if __name__ == '__main__':
                                      val_width=args.val_byte_size,
                                      byte_order=args.byte_order)
 
-    parser = CodeParser(ist0_set, dirv_set)
-    root_parser_context = CodeParserContext(parser, args.input_filename)
+    parser = Parser(ist0_set, dirv_set)
 
     if args.show_man:
         print(parser.get_full_manual())
@@ -53,7 +52,9 @@ if __name__ == '__main__':
         exit(2)
 
     with open(args.output_filename, mode='wb') as out_fp:
+        root_parser_context = parser.parse(args.input_filename)
+        print(root_parser_context.get_summary())
         writer = BinaryWriter(out_fp, binary_metadata)
-        writer.write_binary(root_parser_context.parse())
+        writer.write_binary(root_parser_context.instructions_out)
 
     exit(0)

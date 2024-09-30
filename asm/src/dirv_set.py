@@ -2,14 +2,15 @@ from directive import DirectivePrototype
 from parameter import Parameter
 
 
-def dirv_import(parser_context, val_list, row):
+def dirv_import(parser_context, val_list):
     filename, *_rest = val_list
-    yield from parser_context.create_inner(filename).parse()
+    child_parser_context = parser_context.child_context(filename)
+    child_parser_context.substitute()
+    parser_context.add_text_source(child_parser_context.text_expanded)
 
-def dirv_define(parser_context, val_list, row):
+def dirv_define(parser_context, val_list):
     name, replacement, *_rest = val_list
-    parser_context.symbols_dict[name] = replacement
-    pass
+    parser_context.define_symbol(name, replacement)
 
 dirv_set = [
     DirectivePrototype('@import',
@@ -17,7 +18,7 @@ dirv_set = [
                        dirv_import,
                        [Parameter('file', 'filename to be included')]),
     DirectivePrototype('@define',
-                       'replace names in this file (also imported) with value',
+                       'replace symbols after define with value',
                        dirv_define,
                        [
                            Parameter('name', 'name to be replaced'),

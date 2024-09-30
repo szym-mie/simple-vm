@@ -10,5 +10,5 @@ class InstructionPrototype(AbstractCommandPrototype):
 
 
 class Instruction(AbstractCommand):
-    def __init__(self, qname, val_list):
-        super().__init__(qname, val_list)
+    def __init__(self, qname, val_list, prototype):
+        super().__init__(qname, val_list, prototype)

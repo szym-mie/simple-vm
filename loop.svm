@@ -1,7 +1,8 @@
 // counter
 i32 5
 // loop start : loc 1
+loop:
 dec
 ez?
-jez 1
+jez loop:
 // it works if zero is left on the stack
