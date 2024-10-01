@@ -98,7 +98,13 @@ class ParserContext:
         self.instructions_out = []
 
     def child_context(self, filename):
-        return ParserContext(self.parser, filename, self)
+        context = ParserContext(self.parser, filename, self)
+        context.reset(self.current_loc)
+        return context
+
+    def update_parent(self):
+        if self.parent is not None:
+            self.parent.current_loc += self.current_loc
 
     def raise_error(self, message, target):
         raise ParserError(message, target, self.filename, self.current_row)
@@ -132,9 +138,9 @@ class ParserContext:
         except KeyError:
             self.raise_error('unknown directive', name)
 
-    def reset(self):
+    def reset(self, prev_loc=0):
         self.current_row = 0
-        self.current_loc = 0
+        self.current_loc = prev_loc
 
     def add_text_source(self, lines):
         row = self.current_row + 1
@@ -143,7 +149,6 @@ class ParserContext:
             row += 1
 
     def substitute(self):
-        self.reset()
         for line in self.text_source:
             tokens = self.parser.tokenize_line(line)
             if len(tokens) > 0:
@@ -158,6 +163,7 @@ class ParserContext:
                 elif self.parser.is_label(name):
                     self.define_label(name)
                 else:
+                    print(name, self.current_loc)
                     params_expanded = []
                     for param in params:
                         symbol = self.defined_symbols.get(param)
@@ -183,7 +189,6 @@ class ParserContext:
             self.raise_error('cannot parse int', token)
 
     def build(self):
-        self.reset()
         for line in self.text_expanded:
             tokens = self.parser.tokenize_line(line)
             name, *params = tokens
@@ -198,11 +203,12 @@ class ParserContext:
     def get_summary(self):
         buffer = 'Build Summary\n'
 
-        # TODO remember line number in source text
-        row = 1
+        buffer += '\nInstruction Stream:\n'
+        buffer += '@loc | instruction\n'
+        loc = 0
         for line in self.text_expanded:
-            buffer += '{:4} ] {}\n'.format(row, line)
-            row += 1
+            buffer += '{:4} | {}\n'.format(loc, line)
+            loc += 1
 
         return buffer
 

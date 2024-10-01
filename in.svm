@@ -2,6 +2,8 @@
 
 // add two numbers in that file
 @import add.svm
+// test if labels location works properly
+@import loop_nop.svm
 
 i32 7
 add
