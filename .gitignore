@@ -1,5 +1,5 @@
 ### SVM template
-*.out
+*.svm.out
 
 ### venv template
 # Virtualenv

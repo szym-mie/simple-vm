@@ -24,7 +24,7 @@ if __name__ == '__main__':
                             metavar='output',
                             nargs=1,
                             help='assembled SVM binary filename',
-                            default='svm.out')
+                            default='aaa.svm.out')
     arg_parser.add_argument('--val-size',
                             dest='val_byte_size',
                             metavar='byte_size',
