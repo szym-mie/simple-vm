@@ -26,11 +26,11 @@ debug: $(OUTP)$(TARGET)
 	
 
 $(OBJS): $(OBJP)%.o: $(SRCP)%.c
-    @mkdir -p $(@D)
+	@mkdir -p $(@D)
 	$(CC) $(CCF) $(XCCF) -c -o $@ $<
 
 $(OUTP)$(TARGET): $(OUTP)%: $(SRCP)%.c $(OBJS) $(LBF)
-    @mkdir -p $(@D)
+	@mkdir -p $(@D)
 	$(CC) $(CCF) $(XCCF) -o $@ $^
 
 .PHONY: install

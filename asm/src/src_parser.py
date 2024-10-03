@@ -2,8 +2,8 @@ import re
 from pathlib import Path
 from textwrap import indent
 
-from asm.src.directive import Directive
-from asm.src.instruction import Instruction
+from directive import Directive
+from instruction import Instruction
 
 
 class Parser:
