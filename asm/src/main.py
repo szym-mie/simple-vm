@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 
-from asm.src.parser import Parser
+from src_parser import Parser
 from binary import BinaryMetadata, BinaryWriter
 from ist0_set import ist0_set
 from dirv_set import dirv_set
