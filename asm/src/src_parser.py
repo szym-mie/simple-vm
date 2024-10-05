@@ -3,18 +3,21 @@ from pathlib import Path
 from textwrap import indent
 
 from directive import Directive
+from directives import directives
 from instruction import Instruction
 
 
 class Parser:
-    def __init__(self, instruction_set, directive_set, **kwargs):
+    def __init__(self, instruction_set, **kwargs):
+        self.instruction_set = instruction_set
+
         self.instructions = {}
-        for instruction in instruction_set:
-            self.instructions[instruction.qname] = instruction
+        for instruction in instruction_set.instructions:
+            self.instructions[instruction.name] = instruction
 
         self.directives = {}
-        for directive in directive_set:
-            self.directives[directive.qname] = directive
+        for directive in directives:
+            self.directives[directive.name] = directive
 
         self.no_substitute = kwargs.get('no_substitute', False)
         self.no_redefine = kwargs.get('no_redefine', False)
@@ -163,7 +166,6 @@ class ParserContext:
                 elif self.parser.is_label(name):
                     self.define_label(name)
                 else:
-                    print(name, self.current_loc)
                     params_expanded = []
                     for param in params:
                         symbol = self.defined_symbols.get(param)

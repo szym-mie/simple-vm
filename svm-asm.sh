@@ -1,3 +1,3 @@
 # !/bin/sh
 
-python3 ./asm/src/main.py $@
+python3 ./asm/src/asm.py $@

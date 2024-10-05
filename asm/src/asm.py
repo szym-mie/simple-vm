@@ -1,9 +1,8 @@
 from argparse import ArgumentParser
 
+from instruction_set import InstructionSet
 from src_parser import Parser
 from binary import BinaryMetadata, BinaryWriter
-from ist0_set import ist0_set
-from dirv_set import dirv_set
 
 if __name__ == '__main__':
     arg_parser = ArgumentParser(prog='svm-asm',
@@ -41,7 +40,9 @@ if __name__ == '__main__':
                                      val_width=args.val_byte_size,
                                      byte_order=args.byte_order)
 
-    parser = Parser(ist0_set, dirv_set)
+    instruction_set = InstructionSet('asm/res/instruction_set_0.json')
+    instruction_set.load()
+    parser = Parser(instruction_set)
 
     if args.show_man:
         print(parser.get_full_manual())

@@ -14,7 +14,7 @@ class BinaryWriter:
 
         buffer = bytearray()
         # add instruction id
-        iid = instruction.prototype.iid
+        iid = instruction.prototype.bin_id
         buffer.extend(self.iid_to_bytes(iid))
         # add values to buffer
         for val in instruction.val_list:
@@ -51,8 +51,8 @@ class BinaryWriter:
         for instruction in instruction_list:
             self.write_instruction(instruction)
 
-    def iid_to_bytes(self, iid):
-        return self.int_to_bytes(self.binary_metadata.iid_width, iid)
+    def iid_to_bytes(self, bin_id):
+        return self.int_to_bytes(self.binary_metadata.iid_width, bin_id)
 
     def val_to_bytes(self, val):
         return self.int_to_bytes(self.binary_metadata.val_width, val)
