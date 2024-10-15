@@ -12,3 +12,7 @@ class InstructionPrototype(AbstractCommandPrototype):
 class Instruction(AbstractCommand):
     def __init__(self, name, val_list, prototype):
         super().__init__(name, val_list, prototype)
+
+    @property
+    def consumed(self):
+        return self.prototype.consumed

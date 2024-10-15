@@ -9,12 +9,15 @@
 
 #define MAX_SET 256
 
+typedef uint32_t loc_t;
+typedef int32_t word_t;
+
 struct program
 {
-	uint32_t start_loc;
-	uint32_t instr_count;
+	loc_t start_loc;
+	loc_t instr_count;
 	struct instr *instrs;
-	int32_t *params;
+	word_t *params;
 };
 
 // suggestion: link instruction defs to program with new struct

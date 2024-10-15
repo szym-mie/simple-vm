@@ -26,6 +26,6 @@ class AbstractCommand:
 
     def verify(self):
         is_params_valid = len(self.prototype.param_list) == len(self.val_list)
-        is_name_valid = self.prototype.name == self.name
+        is_name_valid = self.prototype.element_name == self.name
         return is_params_valid and is_name_valid
 

@@ -13,11 +13,11 @@ class Parser:
 
         self.instructions = {}
         for instruction in instruction_set.instructions:
-            self.instructions[instruction.name] = instruction
+            self.instructions[instruction.element_name] = instruction
 
         self.directives = {}
         for directive in directives:
-            self.directives[directive.name] = directive
+            self.directives[directive.element_name] = directive
 
         self.no_substitute = kwargs.get('no_substitute', False)
         self.no_redefine = kwargs.get('no_redefine', False)

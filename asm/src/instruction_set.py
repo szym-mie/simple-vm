@@ -1,6 +1,6 @@
 from json import load
 
-from asm.src.parameter import Parameter
+from parameter import Parameter
 from instruction import InstructionPrototype
 
 
@@ -11,13 +11,20 @@ class InstructionSet:
         self.author = None
         self.instructions = []
 
+    @property
+    def max_bin_id(self):
+        return max([instr.bin_id for instr in self.instructions])
+
+    @property
+    def slot_count(self):
+        return self.max_bin_id + 1
+
     def load(self):
         with open(self.filename, 'r') as fp:
             raw_json = load(fp)
             self.name = raw_json.get('name', 'UNKNOWN')
             self.author = raw_json.get('author', 'UNKNOWN')
             raw_instructions = raw_json.get('instructions', [])
-            instruction_prototypes = []
 
             if len(raw_instructions) == 0:
                 raise ValueError('instruction set is empty')
