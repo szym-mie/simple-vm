@@ -13,11 +13,11 @@ class Parser:
 
         self.instructions = {}
         for instruction in instruction_set.instructions:
-            self.instructions[instruction.element_name] = instruction
+            self.instructions[instruction.name] = instruction
 
         self.directives = {}
         for directive in directives:
-            self.directives[directive.element_name] = directive
+            self.directives[directive.name] = directive
 
         self.no_substitute = kwargs.get('no_substitute', False)
         self.no_redefine = kwargs.get('no_redefine', False)
@@ -57,7 +57,27 @@ class Parser:
 
     @classmethod
     def tokenize_line(cls, line):
-        return cls.strip_comment(line).split()
+        line_content = cls.strip_comment(line)
+        is_quoted = False
+        token_acc = ''
+        token_list = []
+        last_char = ''
+
+        for char in line_content:
+            if char in (' ', '\n') and not is_quoted:
+                if len(token_acc) > 0:
+                    token_list.append(token_acc)
+                token_acc = ''
+            elif last_char != '\\' and char == '"':
+                is_quoted = not is_quoted
+            else:
+                token_acc += char
+            last_char = char
+
+        if len(token_acc) > 0:
+            token_list.append(token_acc)
+
+        return token_list
 
     @classmethod
     def join_line(cls, line_tokens):
@@ -92,6 +112,7 @@ class ParserContext:
 
         self.defined_symbols = {}
         self.defined_labels = {}
+        self.defined_meta_attrs = {}
 
         if self.has_cycles():
             self.raise_error('import cycle detected', self.filename)
@@ -100,7 +121,25 @@ class ParserContext:
         self.text_expanded = []
         self.instructions_out = []
 
-    def child_context(self, filename):
+    def get_root(self):
+        ctx = self
+        while ctx.parent is not None:
+            ctx = ctx.parent
+        return ctx
+
+    def set_meta_attr(self, key, value):
+        self.defined_meta_attrs[key] = value
+
+    def get_meta_attr(self, key):
+        ctx = self
+        while ctx.parent is not None:
+            try:
+                return ctx.defined_meta_attrs[key]
+            except KeyError:
+                ctx = ctx.parent
+        return None
+
+    def new_child_context(self, filename):
         context = ParserContext(self.parser, filename, self)
         context.reset(self.current_loc)
         return context
@@ -119,14 +158,14 @@ class ParserContext:
         if symbol in self.defined_symbols:
             self.raise_error('redefined symbol', symbol)
         if self.has_symbol_or_label(symbol):
-            self.raise_error('label with same name already defined', symbol)
+            self.raise_error('label with this name already defined', symbol)
         self.defined_symbols[symbol] = text
 
     def define_label(self, label):
         if label in self.defined_labels:
             self.raise_error('duplicate label', label)
         if self.has_symbol_or_label(label):
-            self.raise_error('symbol with same name already defined', label)
+            self.raise_error('symbol with this name already defined', label)
         self.defined_labels[label] = self.current_loc
 
     def get_instruction_prototype(self, name):

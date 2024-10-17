@@ -47,6 +47,8 @@ class BinaryWriter:
         param_count = sum([len(instruction.val_list)
                            for instruction in instruction_list])
 
+
+
         self.write_binary_metadata(instruction_count, param_count)
         for instruction in instruction_list:
             self.write_instruction(instruction)
@@ -66,6 +68,10 @@ class BinaryMetadata:
         self.iid_width = iid_width
         self.val_width = val_width
         self.byte_order = byte_order
+        self.meta_attrs = {}
+
+    def merge_meta_attrs(self, context):
+        self.meta_attrs = { **self.meta_attrs, **context.defined_meta_attrs }
 
     @property
     def byte_order(self):

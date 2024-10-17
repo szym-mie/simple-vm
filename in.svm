@@ -1,4 +1,6 @@
 // simple example
+@meta name "SIMPLE_EXAMPLE"
+@meta info "most basic SVM example/demo"
 
 // add two numbers in that file
 @import add.svm
