@@ -1,9 +1,24 @@
 from pathlib import Path
+from textwrap import indent, wrap
+
+
+class CCodeStyle:
+    def __init__(self, **kwargs):
+        self.element_indent = kwargs.get('element_indent', 4)
+        self.column_limit = kwargs.get('column_limit', 80)
+        self.array_newlines = kwargs.get('array_newlines', True)
+
+    def indent(self, text):
+        return indent(text, ' ' * self.element_indent)
+
+    def wrap(self, text):
+        return '\n'.join(wrap(text, width=self.column_limit, expand_tabs=False))
 
 
 class CInstructionTemplateWriter:
-    def __init__(self, filename):
+    def __init__(self, filename, code_style):
         self.filename = filename
+        self.code_style = code_style
 
         path_source = Path('{}.c'.format(filename))
         path_include = Path('{}.h'.format(filename))
@@ -77,16 +92,15 @@ class CInstructionTemplateWriter:
         ])
 
         with open(self.path_source, mode='w') as fp_source:
-            fp_source.write(code_source.get_code())
+            fp_source.write(code_source.get_code(self.code_style))
         with open(self.path_include, mode='w') as fp_include:
-            fp_include.write(code_include.get_code())
+            fp_include.write(code_include.get_code(self.code_style))
 
 
 class CElement:
     def __init__(self, element_name):
         self.element_name = element_name
         self.elements = []
-        self.elements_indent = 0
 
     def __str__(self):
         return self.element_name
@@ -98,22 +112,21 @@ class CElement:
         for element in elements:
             self.add_element(element)
 
-    def get_elements_code(self):
+    def get_elements_code(self, cs):
         code = []
         for element in self.elements:
-            code.extend(element.get_code())
+            code.extend(element.get_code(cs))
         return code
 
-    @staticmethod
-    def get_c_value(value):
+    def get_c_value(self, value, cs):
         if value is None:
             return 'NULL'
         value_t = type(value)
         if value_t is list:
-            elements = [CElement.get_c_value(element) for element in value]
-            return '{{\n    {}\n}}'.format(',\n    '.join(elements))
+            elements = [self.get_c_value(element, cs) for element in value]
+            return '{{\n{}\n}}'.format(cs.indent(',\n'.join(elements)))
         if value_t is dict:
-            pairs = [(k, CElement.get_c_value(v)) for k, v in value.items()]
+            pairs = [(k, self.get_c_value(v, cs)) for k, v in value.items()]
             fields = ['.{} = {}'.format(*pair) for pair in pairs]
             return '{{ {} }}'.format(', '.join(fields))
         if value_t is str:
@@ -124,20 +137,19 @@ class CElement:
             op, name = value
             return '{}{}'.format(op, name)
 
-    def _get_pre_code(self):
+    def _get_pre_code(self, cs):
         return []
 
-    def _get_mid_code(self):
+    def _get_mid_code(self, cs):
         return ['// TODO {}'.format(self.element_name)]
 
-    def _get_post_code(self):
+    def _get_post_code(self, cs):
         return []
 
-    def get_code(self):
-        pre_code = self._get_pre_code()
-        post_code = self._get_post_code()
-        indent = lambda t: '{}{}'.format(' ' * self.elements_indent, t)
-        mid_code = [indent(line) for line in self._get_mid_code()]
+    def get_code(self, cs):
+        pre_code = self._get_pre_code(cs)
+        post_code = self._get_post_code(cs)
+        mid_code = self._get_mid_code(cs)
 
         return pre_code + mid_code + post_code
 
@@ -146,7 +158,7 @@ class Newline(CElement):
     def __init__(self):
         super().__init__('NEWLINE')
 
-    def _get_mid_code(self):
+    def _get_mid_code(self, cs):
         return ['']
 
 
@@ -155,11 +167,11 @@ class CCode(CElement):
         super().__init__('ROOT')
         self.add_elements(body)
 
-    def _get_mid_code(self):
-        return self.get_elements_code()
+    def _get_mid_code(self, cs):
+        return self.get_elements_code(cs)
 
-    def get_code(self):
-        return '\n'.join(super().get_code())
+    def get_code(self, cs):
+        return '\n'.join(super().get_code(cs))
 
 
 class CMacroGuard(CElement):
@@ -170,16 +182,16 @@ class CMacroGuard(CElement):
         self.define_name = '_{}_H_'.format(self.filename.upper())
         self.add_elements(body)
 
-    def _get_mid_code(self):
-        return self.get_elements_code()
+    def _get_mid_code(self, cs):
+        return self.get_elements_code(cs)
 
-    def _get_pre_code(self):
+    def _get_pre_code(self, cs):
         return [
             '#ifndef {}'.format(self.define_name),
             '#define {}'.format(self.define_name)
         ]
 
-    def _get_post_code(self):
+    def _get_post_code(self, cs):
         return [
             '#endif//{}'.format(self.define_name)
         ]
@@ -192,7 +204,7 @@ class CInclude(CElement):
         self.is_preprocessor = True
         self.is_std = is_std
 
-    def _get_mid_code(self):
+    def _get_mid_code(self, cs):
         fmt = ('<{}>' if self.is_std else '"{}"').format(self.filename)
         return ['#include {}'.format(fmt)]
 
@@ -202,7 +214,7 @@ class CComment(CElement):
         super().__init__('COMMENT')
         self.text = text
 
-    def _get_mid_code(self):
+    def _get_mid_code(self, cs):
         return ['// {}'.format(line) for line in self.text.split('\n')]
 
 
@@ -249,7 +261,7 @@ class CVarDeclare(CElement):
         self.name = name
         self.storage = storage + ' ' if storage is not None else ''
 
-    def _get_mid_code(self):
+    def _get_mid_code(self, cs):
         fmt = (self.storage, self.type_spec.get_c_type(self.name))
         return ['{}{};'.format(*fmt)]
 
@@ -262,8 +274,8 @@ class CVarDefine(CElement):
         self.value = value
         self.storage = storage + ' ' if storage is not None else ''
 
-    def _get_mid_code(self):
-        val = CElement.get_c_value(self.value)
+    def _get_mid_code(self, cs):
+        val = self.get_c_value(self.value, cs)
         fmt = (self.storage, self.type_spec.get_c_type(self.name), val)
         return ['{}{} = {};'.format(*fmt)]
 
@@ -275,18 +287,17 @@ class CFuncDefine(CElement):
         self.name = name
         self.params = params
         self.add_elements(body)
-        self.elements_indent = 2
 
-    def _get_pre_code(self):
+    def _get_pre_code(self, cs):
         params_text = CParam.get_params_text(self.params)
         fmt = (self.type_spec.get_c_type(self.name), params_text)
         return ['{}({})'.format(*fmt), '{']
 
-    def _get_post_code(self):
+    def _get_post_code(self, cs):
         return ['}']
 
-    def _get_mid_code(self):
-        return self.get_elements_code()
+    def _get_mid_code(self, cs):
+        return [cs.indent(line) for line in self.get_elements_code(cs)]
 
 class CFuncCall(CElement):
     def __init__(self, name, params):
@@ -294,7 +305,7 @@ class CFuncCall(CElement):
         self.name = name
         self.params = params
 
-    def _get_mid_code(self):
+    def _get_mid_code(self, cs):
         params_text = CParam.get_params_text(self.params)
         fmt = (self.name, params_text)
         return ['{}({});'.format(*fmt)]

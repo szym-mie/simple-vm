@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 
 from instruction_set import InstructionSet
-from c_file import CInstructionTemplateWriter
+from c_file import CInstructionTemplateWriter, CCodeStyle
 
 if __name__ == '__main__':
     arg_parser = ArgumentParser(prog='svm-asm',
@@ -43,8 +43,10 @@ if __name__ == '__main__':
     instruction_set = InstructionSet(args.input_filename)
     instruction_set.load()
 
+    code_style = CCodeStyle()
+
     with open(args.output_filename, mode='w') as out_fp:
-        template_writer = CInstructionTemplateWriter('test')
+        template_writer = CInstructionTemplateWriter('test', code_style)
         template_writer.write(instruction_set)
 
     exit(0)
