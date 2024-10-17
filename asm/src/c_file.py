@@ -16,20 +16,22 @@ class CCodeStyle:
 
 
 class CInstructionTemplateWriter:
-    def __init__(self, filename, code_style):
-        self.filename = filename
+    def __init__(self, filename, overwrite, code_style):
+        self.filename = Path(filename).stem
+        self.overwrite = overwrite
         self.code_style = code_style
 
-        path_source = Path('{}.c'.format(filename))
-        path_include = Path('{}.h'.format(filename))
+        path_source = Path(filename).with_suffix('.c')
+        path_include = Path(filename).with_suffix('.h')
 
-        if path_source.exists():
+        if not overwrite and path_source.exists():
             raise RuntimeError('file {} already exists'.format(path_source))
-        if path_include.exists():
+        if not overwrite and path_include.exists():
             raise RuntimeError('file {} already exists'.format(path_include))
 
-        self.path_source = path_source
-        self.path_include = path_include
+        self.macro_include = path_include.stem
+        self.path_source = path_source.name
+        self.path_include = path_include.name
 
     def write(self, instruction_set):
         instructions = instruction_set.instructions
@@ -79,7 +81,7 @@ class CInstructionTemplateWriter:
         ])
 
         code_include = CCode([
-            CMacroGuard(self.path_include.stem, [
+            CMacroGuard(self.macro_include, [
                 Newline(),
                 CInclude('stdint.h', True),
                 Newline(),
