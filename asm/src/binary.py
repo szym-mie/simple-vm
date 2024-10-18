@@ -1,3 +1,6 @@
+from idlelib.iomenu import encoding
+
+
 class BinaryWriter:
     def __init__(self, fp, binary_metadata):
         self.fp = fp
@@ -22,7 +25,11 @@ class BinaryWriter:
 
         self.fp.write(buffer)
 
-    def write_binary_metadata(self, instruction_count, param_count):
+    def write_binary_metadata(self, instruction_list, meta_attrs):
+        instruction_count = len(instruction_list)
+        param_count = sum([len(instruction.val_list)
+                           for instruction in instruction_list])
+
         buffer = bytearray()
         # add signature, offset +0x00
         buffer.extend(bytes(self.binary_metadata.signature, encoding='ascii'))
@@ -35,21 +42,22 @@ class BinaryWriter:
         # don't add instruction id byte size, always 1
         # add val byte size, offset +0x0d
         buffer.extend(self.int_to_bytes(1, self.binary_metadata.val_width))
-        # add small zero padding and end pattern, offset +0x0e
-        buffer.extend(b'\x00\x55')
+        # add meta attribute count +0x0e
+        buffer.extend(self.int_to_bytes(1, len(meta_attrs)))
+
+        for key, value in meta_attrs.items():
+            buffer.extend(self.str_to_bytes(key))
+            buffer.extend(self.str_to_bytes(value))
+
+        # add end pattern, offset +0x0e + meta attrs length
+        buffer.extend(b'\x55')
 
         self.fp.write(buffer)
 
-    def write_binary(self, instructions):
+    def write_binary(self, instructions, meta_attrs):
         instruction_list = list(instructions)
 
-        instruction_count = len(instruction_list)
-        param_count = sum([len(instruction.val_list)
-                           for instruction in instruction_list])
-
-
-
-        self.write_binary_metadata(instruction_count, param_count)
+        self.write_binary_metadata(instruction_list, meta_attrs)
         for instruction in instruction_list:
             self.write_instruction(instruction)
 
@@ -58,6 +66,9 @@ class BinaryWriter:
 
     def val_to_bytes(self, val):
         return self.int_to_bytes(self.binary_metadata.val_width, val)
+
+    def str_to_bytes(self, val):
+        return bytes('{}\0'.format(val), encoding='ascii')
 
 
 class BinaryMetadata:

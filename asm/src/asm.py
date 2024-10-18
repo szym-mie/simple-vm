@@ -55,8 +55,10 @@ if __name__ == '__main__':
     with open(args.output_filename, mode='wb') as out_fp:
         root_parser_context = parser.parse(args.input_filename)
         print(root_parser_context.get_summary())
-        print(root_parser_context.defined_meta_attrs)
         writer = BinaryWriter(out_fp, binary_metadata)
-        writer.write_binary(root_parser_context.instructions_out)
+        writer.write_binary(
+            root_parser_context.instructions_out,
+            root_parser_context.defined_meta_attrs
+        )
 
     exit(0)

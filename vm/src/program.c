@@ -13,17 +13,27 @@ int program_load
 	fread(&sig, 1, 4, f);
 	if (!program_verify_sig(sig)) return 0;
 	
-	uint32_t instr_count;
-	uint32_t param_count;
-	fread(&instr_count, sizeof(uint32_t), 1, f);
-	fread(&param_count, sizeof(uint32_t), 1, f);
+	loc_t instr_count;
+	size_t param_count;
+	fread(&instr_count, sizeof(loc_t), 1, f);
+	fread(&param_count, sizeof(len_t), 1, f);
 	
 	uint8_t unused;
+	uint8_t mattrs_count;
 
 	// ignore rest of the metadata (version + val size + padding)
 	fread(&unused, sizeof(uint8_t), 1, f);
 	fread(&unused, sizeof(uint8_t), 1, f);
-	fread(&unused, sizeof(uint8_t), 1, f);
+	fread(&mattrs_count, sizeof(len_t), 1, f);
+
+	struct meta_attr *mattrs = malloc(sizeof(struct meta_attr) * mattrs_count);
+	if (meta_attrs == NULL) return 0;
+
+	for (uint8_t i = 0; i < mattrs_count; i++)
+	{
+        if (!meta_attr_parse(f, mattrs+i)) return 0;
+	}
+
 	fread(&unused, sizeof(uint8_t), 1, f);
 
 	struct instr *instrs = malloc(sizeof(struct instr) * instr_count);
@@ -53,6 +63,8 @@ int program_load
 		instr->id = id;
 		instr->params = instr_params;
 	}
+
+	fclose(f);
 	
 	// TODO read start loc from binary file later
 	program->start_loc = 0;
