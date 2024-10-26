@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "meta_attr.h"
 #include "program.h"
 #include "ist0_set.h"
 
@@ -19,6 +20,14 @@ main(int argc, char *argv[])
 	printf("load %s...\n", filename);
 	program_load(&prog, ist0_set, filename);
 	printf("loaded.\n");
+	printf("meta attributes:\n\n");
+
+	for (slen_t i = 0; i < prog.meta_attr_count; i++)
+	{
+		struct meta_attr *mattr = prog.meta_attrs+i;
+		printf("  %s = \"%s\"\n", mattr->key, mattr->val);
+	}
+
 	printf("run program...\n");
 	program_run(&prog, ist0_set, &stack);
 	printf("end stack:\n\n");

@@ -1,12 +1,13 @@
+#include "meta_attr.h"
+
 char *meta_attr_read(FILE *f)
 {
-    uint16_t max_len = 1024;
     uint16_t len;
 
-    char buf[max_len];
+    char buf[1024];
     for (len = 0;; len++)
     {
-        int c = fgetc();
+        int c = fgetc(f);
         buf[len] = c;
         if (c == '\0') break;
         if (c == EOF || len == sizeof(buf)) return NULL;
@@ -18,7 +19,7 @@ char *meta_attr_read(FILE *f)
     return str;
 }
 
-int meta_attr_parse(FILE *f, struct program_meta_attr *attr)
+int meta_attr_parse(FILE *f, struct meta_attr *attr)
 {
     attr->key = meta_attr_read(f);
     attr->val = meta_attr_read(f);

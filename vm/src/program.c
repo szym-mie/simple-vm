@@ -16,7 +16,7 @@ int program_load
 	loc_t instr_count;
 	size_t param_count;
 	fread(&instr_count, sizeof(loc_t), 1, f);
-	fread(&param_count, sizeof(len_t), 1, f);
+	fread(&param_count, sizeof(llen_t), 1, f);
 	
 	uint8_t unused;
 	uint8_t mattrs_count;
@@ -24,14 +24,14 @@ int program_load
 	// ignore rest of the metadata (version + val size + padding)
 	fread(&unused, sizeof(uint8_t), 1, f);
 	fread(&unused, sizeof(uint8_t), 1, f);
-	fread(&mattrs_count, sizeof(len_t), 1, f);
+	fread(&mattrs_count, sizeof(slen_t), 1, f);
 
 	struct meta_attr *mattrs = malloc(sizeof(struct meta_attr) * mattrs_count);
-	if (meta_attrs == NULL) return 0;
+	if (mattrs == NULL) return 0;
 
-	for (uint8_t i = 0; i < mattrs_count; i++)
+	for (slen_t i = 0; i < mattrs_count; i++)
 	{
-        if (!meta_attr_parse(f, mattrs+i)) return 0;
+		if (!meta_attr_parse(f, mattrs+i)) return 0;
 	}
 
 	fread(&unused, sizeof(uint8_t), 1, f);
@@ -46,18 +46,18 @@ int program_load
 		return 0;
 	}
 
-	uint8_t id;
+	iid_t id;
 	uint32_t tpi = 0;
 
-	for (uint32_t i = 0; i < instr_count; i++)
+	for (llen_t i = 0; i < instr_count; i++)
 	{
-		fread(&id, sizeof(uint8_t), 1, f);
+		fread(&id, sizeof(iid_t), 1, f);
 		uint8_t param_count = instr_defs[id].params_consumed;
 		
 		struct instr *instr = instrs + i;
-		int32_t *instr_params = params + tpi;
+		word_t *instr_params = params + tpi;
 		
-		fread(instr_params, sizeof(int32_t), param_count, f);
+		fread(instr_params, sizeof(word_t), param_count, f);
 		tpi += param_count;
 
 		instr->id = id;
@@ -68,6 +68,8 @@ int program_load
 	
 	// TODO read start loc from binary file later
 	program->start_loc = 0;
+	program->meta_attr_count = mattrs_count;
+	program->meta_attrs = mattrs;
 	program->instr_count = instr_count;
 	program->instrs = instrs;
 	program->params = params;
@@ -82,7 +84,7 @@ int program_run
 		struct stack *stack
 )
 {
-	uint32_t loc = program->start_loc;
+	loc_t loc = program->start_loc;
 	struct instr *instr;
 
 	while (loc < program->instr_count)

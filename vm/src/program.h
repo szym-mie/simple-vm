@@ -5,18 +5,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "meta_attr.h"
 #include "instr.h"
 
 #define MAX_SET 256
-typedef uint32_t len_t;
+typedef uint8_t iid_t;
+typedef uint16_t slen_t;
+typedef uint32_t llen_t;
 typedef uint32_t loc_t;
 typedef int32_t word_t;
 
 struct program
 {
 	loc_t start_loc;
-	len_t meta_attr_count;
-	struct meta_attrs *meta_attrs;
+	slen_t meta_attr_count;
+	struct meta_attr *meta_attrs;
 	loc_t instr_count;
 	struct instr *instrs;
 	word_t *params;

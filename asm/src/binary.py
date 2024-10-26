@@ -1,6 +1,3 @@
-from idlelib.iomenu import encoding
-
-
 class BinaryWriter:
     def __init__(self, fp, binary_metadata):
         self.fp = fp
@@ -43,7 +40,7 @@ class BinaryWriter:
         # add val byte size, offset +0x0d
         buffer.extend(self.int_to_bytes(1, self.binary_metadata.val_width))
         # add meta attribute count +0x0e
-        buffer.extend(self.int_to_bytes(1, len(meta_attrs)))
+        buffer.extend(self.int_to_bytes(2, len(meta_attrs)))
 
         for key, value in meta_attrs.items():
             buffer.extend(self.str_to_bytes(key))
