@@ -16,22 +16,30 @@ class CCodeStyle:
 
 
 class CInstructionTemplateWriter:
-    def __init__(self, filename, overwrite, code_style):
+    def __init__(self, filename, output_path, overwrite, code_style):
         self.filename = Path(filename).stem
+        self.output_path = Path(output_path).absolute()
         self.overwrite = overwrite
         self.code_style = code_style
 
-        path_source = Path(filename).with_suffix('.c')
-        path_include = Path(filename).with_suffix('.h')
+        if not self.output_path.exists():
+            raise RuntimeError('path {} does not exist'.format(
+                self.output_path.as_posix()))
+
+        path_source = self.output_path.joinpath(self.filename).with_suffix('.c')
+        path_include = self.output_path.joinpath(self.filename).with_suffix('.h')
 
         if not overwrite and path_source.exists():
-            raise RuntimeError('file {} already exists'.format(path_source))
+            raise RuntimeError('file {} already exists'.format(
+                path_source.as_posix()))
         if not overwrite and path_include.exists():
-            raise RuntimeError('file {} already exists'.format(path_include))
+            raise RuntimeError('file {} already exists'.format(
+                path_include.as_posix()))
 
+        self.path_macro_include = path_include.name
         self.macro_include = path_include.stem
-        self.path_source = path_source.name
-        self.path_include = path_include.name
+        self.path_source = path_source
+        self.path_include = path_include
 
     def write(self, instruction_set):
         instructions = instruction_set.instructions
@@ -45,36 +53,46 @@ class CInstructionTemplateWriter:
             CParam(CTypeSpec('const word_t', '*'), 'pv')
         ]
 
-        def create_instr_fn(instr):
+        def create_instr_fn(name, comment):
+            return CFuncDefine(
+                instr_return_ts,
+                name,
+                instr_params,
+                [CComment(comment)])
+
+
+        def create_instr_fn_of(instr):
             illegal_symbols = '=?!/.>-<'
 
             escaped_name = instr.name
             for symbol in illegal_symbols:
                 escaped_name = escaped_name.replace(symbol, '_')
 
-            return CFuncDefine(
-                instr_return_ts,
+            return create_instr_fn(
                 '{}_{:02x}'.format(escaped_name, instr.bin_id),
-                instr_params,
-                [
-                    CComment('\'{}\' code here'.format(instr.name))
-                ])
+                '\'{}\' code here'.format(instr.name))
 
         instr_code = []
+
         entries = [
-            {'fn': ('&', 'instr_no_such'), 'params_consumed': 0}
-            for _ in range(count)
-        ]
+            {'fn': ('&', 'no_such_instr'), 'params_consumed': 0}
+        ] * count
+
         for instruction in instructions:
             pc = instruction.consumed
             bin_id = instruction.bin_id
-            fn = create_instr_fn(instruction)
-            instr_code.append(fn)
+            fn = create_instr_fn_of(instruction)
+            
+            instr_code.extend((fn, Newline()))
+
             entries[bin_id] = {'fn': ('&', fn.name), 'params_consumed': pc}
-            instr_code.append(Newline())
+
+        instr_code.extend((create_instr_fn(
+            'no_such_instr', 
+            'executed when unmapped instruction opcode was read'), Newline()))
 
         code_source = CCode([
-            CInclude(self.path_include, False),
+            CInclude(self.path_macro_include, False),
             Newline(),
         ] + instr_code + [
             CVarDefine(instr_array_ts, 'ist_set', entries)
@@ -93,9 +111,9 @@ class CInstructionTemplateWriter:
             ])
         ])
 
-        with open(self.path_source, mode='w') as fp_source:
+        with open(self.path_source.as_posix(), mode='w') as fp_source:
             fp_source.write(code_source.get_code(self.code_style))
-        with open(self.path_include, mode='w') as fp_include:
+        with open(self.path_include.as_posix(), mode='w') as fp_include:
             fp_include.write(code_include.get_code(self.code_style))
 
 

@@ -1,15 +1,15 @@
 #include "ist0_set.h"
 #include "instr.h"
 
-INSTR_FN_DEF(nop) {}
+INSTR_FN(nop) {}
 
-INSTR_FN_DEF(i32)
+INSTR_FN(i32)
 {
 	PRODUCE(*pv);
 	NEXT_LOC();
 }
 
-INSTR_FN_DEF(add)
+INSTR_FN(add)
 {
 	int32_t a, b;
 	CONSUME(&a);
@@ -18,7 +18,7 @@ INSTR_FN_DEF(add)
 	NEXT_LOC();
 }
 
-INSTR_FN_DEF(dec)
+INSTR_FN(dec)
 {
 	int32_t a;
 	CONSUME(&a);
@@ -26,7 +26,7 @@ INSTR_FN_DEF(dec)
 	NEXT_LOC();
 }
 
-INSTR_FN_DEF(eq_)
+INSTR_FN(eq_)
 {
 	int32_t a, b;
 	CONSUME(&a);
@@ -35,7 +35,7 @@ INSTR_FN_DEF(eq_)
 	NEXT_LOC();
 }
 
-INSTR_FN_DEF(ez_)
+INSTR_FN(ez_)
 {
 	int32_t a;
 	CONSUME(&a);
@@ -44,7 +44,7 @@ INSTR_FN_DEF(ez_)
 	NEXT_LOC();
 }
 
-INSTR_FN_DEF(jez)
+INSTR_FN(jez)
 {
 	int32_t a;
 	CONSUME(&a);
@@ -52,7 +52,7 @@ INSTR_FN_DEF(jez)
 	else NEXT_LOC();
 }
 
-INSTR_FN_DEF(jnz)
+INSTR_FN(jnz)
 {
 	int32_t a;
 	CONSUME(&a);
@@ -62,13 +62,13 @@ INSTR_FN_DEF(jnz)
 
 struct instr_def ist0_set[MAX_SET] =
 {
-	INSTR_DEF_ENTRY(0x00, nop, 0),
-	INSTR_DEF_ENTRY(0x01, i32, 1),
-	INSTR_DEF_ENTRY(0x02, add, 0),
-	INSTR_DEF_ENTRY(0x03, dec, 0),
-	INSTR_DEF_ENTRY(0x10, eq_, 0),
-	INSTR_DEF_ENTRY(0x11, ez_, 0),
-	INSTR_DEF_ENTRY(0x20, jez, 1),
-	INSTR_DEF_ENTRY(0x21, jnz, 1),
+	INSTR_ENTRY(0x00, nop, 0),
+	INSTR_ENTRY(0x01, i32, 1),
+	INSTR_ENTRY(0x02, add, 0),
+	INSTR_ENTRY(0x03, dec, 0),
+	INSTR_ENTRY(0x10, eq_, 0),
+	INSTR_ENTRY(0x11, ez_, 0),
+	INSTR_ENTRY(0x20, jez, 1),
+	INSTR_ENTRY(0x21, jnz, 1),
 };
 

@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+#define STACK_OK 1
+#define STACK_FULL 0
+#define STACK_EMPTY 0
+
 struct stack
 {
 	uint32_t elem_count;

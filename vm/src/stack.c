@@ -11,9 +11,9 @@ int stack_push(struct stack *stack, int32_t val)
 	if (stack->elem_count < stack->max_elem_count)
 	{
 		*(stack->stack + stack->elem_count++) = val;
-		return 1;
+		return STACK_OK;
 	}
-	return 0;
+	return STACK_FULL;
 }
 
 int stack_pop(struct stack *stack, int32_t *val)
@@ -21,7 +21,7 @@ int stack_pop(struct stack *stack, int32_t *val)
 	if (stack->elem_count > 0)
 	{
 		*val = *(stack->stack + --stack->elem_count);
-		return 1;
+		return STACK_OK;
 	}
-	return 0;
+	return STACK_EMPTY;
 }

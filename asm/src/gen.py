@@ -10,13 +10,17 @@ if __name__ == '__main__':
     arg_parser.add_argument('-i',
                             dest='input_filename',
                             metavar='input',
-                            help='SVM instruction set JSON',
+                            help='path to SVM instruction set input JSON',
                             default=None)
     arg_parser.add_argument('-o',
                             dest='output_filename',
-                            metavar='output',
-                            nargs=1,
-                            help='assembled SVM binary filename',
+                            metavar='filename',
+                            help='override filename of C template files',
+                            default=None)
+    arg_parser.add_argument('-p',
+                            dest='output_basepath',
+                            metavar='basepath',
+                            help='path where C instruction set templates should be written to',
                             default=None)
     arg_parser.add_argument('-f',
                             action='store_true',
@@ -35,6 +39,11 @@ if __name__ == '__main__':
     if args.output_filename is None:
         output_filename = args.input_filename
 
+    output_basepath = args.output_basepath
+
+    if args.output_basepath is None:
+        output_basepath = '.'
+
     instruction_set = InstructionSet(args.input_filename)
     instruction_set.load()
 
@@ -42,6 +51,7 @@ if __name__ == '__main__':
 
     template_writer = CInstructionTemplateWriter(
         output_filename,
+        output_basepath,
         args.force_write,
         code_style
     )

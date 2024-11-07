@@ -6,8 +6,8 @@
 #include "stack.h"
 
 #define INSTR_PARAMS uint32_t *loc, struct stack *s, const int32_t *pv
-#define INSTR_FN_DEF(QN) void QN(INSTR_PARAMS)
-#define INSTR_DEF_ENTRY(ID, FN, PC) [ID] = { .fn = FN, .params_consumed = PC }
+#define INSTR_FN(QN) void QN(INSTR_PARAMS)
+#define INSTR_ENTRY(ID, FN, PC) [ID] = { .fn = FN, .params_consumed = PC }
 
 struct instr_def
 {
