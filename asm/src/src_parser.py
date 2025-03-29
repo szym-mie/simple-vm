@@ -2,6 +2,9 @@ import re
 from pathlib import Path
 from textwrap import indent
 
+from src_struct import Symbol, Label, Immediate
+from src_line import SourceLine
+
 from directive import Directive
 from directives import directives
 from instruction import Instruction
@@ -28,8 +31,8 @@ class Parser:
     def parse(self, filename):
         context = self.new_context(filename)
         context.substitute()
-        for i in context.text_elements:
-            print(i.filename, i.row, i.body)
+        # for i in context.text_elements:
+        #     print(i.filename, i.row, i.body)
         context.build()
         return context
 
@@ -119,61 +122,6 @@ class Parser:
     _int_filter = re.compile('^-?(([0-9]+)|(0x[0-9a-fA-F]+)|(0b[0-1]+))$')
     _float_filter = re.compile('^-?([0-9]*\\.[0-9]+)$')
     _str_filter = re.compile('^"((\\\\")|[^"])*"$')
-
-
-class Immediate:
-    def __init__(self, text):
-        self.text = text
-
-    @property
-    def value(self):
-        return self.text
-
-    def __repr__(self):
-        return 'imm {{ "{}" }}'.format(self.text)
-
-
-class Symbol:
-    def __init__(self, name, text):
-        self.name = name
-        self.text = text
-
-    @property
-    def value(self):
-        return self.text
-
-    def __repr__(self):
-        return 'sym {{ {}="{}" }}'.format(self.name, self.text)
-
-class Label:
-    def __init__(self, name, loc):
-        self.name = name
-        self.loc = loc
-
-    @property
-    def value(self):
-        return self.loc
-
-    def is_bound(self):
-        return self.loc is not None
-
-    def __str__(self):
-        return 'label {{ {} 0x{:08x} }}'.format(self.name, self.loc)
-
-    def __repr__(self):
-        return self.__str__()
-
-
-class MetaAttrEntry:
-    def __int__(self, key, value):
-        self.key = key
-        self.value = value
-
-    def __str__(self):
-        return 'meta {{ {}="{}" }}'.format(self.key, self.value)
-
-    def __repr__(self):
-        return self.__str__()
 
 
 class ParserContext:
@@ -291,43 +239,55 @@ class ParserContext:
 
     def substitute(self):
         for line in self.text_source:
-            print('body:' + str(line.body))
-            tokens = self.parser.tokenize_line(line.body)
-            if len(tokens) > 0:
-                name, *params = tokens
-                if Parser.is_directive(name):
-                    directive_prototype = self.get_directive_prototype(name)
-                    directive = Directive(name, params, directive_prototype)
-                    directive.prototype = directive_prototype
-                    if not directive.verify():
-                        self.raise_error('invalid parameters passed', name)
-                    directive.execute(self)
-                elif Parser.is_label(name):
-                    self.define_label(name)
-                else:
-                    params_expanded = []
-                    for param in params:
-                        print(param)
-                        symbol = self.defined_symbols.get(param)
-                        label = self.defined_labels.get(param)
-                        print(symbol)
-                        print(label)
-                        if label is not None:
-                            params_expanded.append(label)
-                        elif symbol is not None:
-                            params_expanded.append(symbol)
-                        elif Parser.is_value(param):
-                            params_expanded.append(Immediate(param))
-                        elif Parser.is_label(param):
-                            params_expanded.append(self.defer_label(param))
-                        else:
-                            self.raise_error('unknown symbol', param)
+            if not line.is_final:
+                # if not substituted already
+                tokens = self.parser.tokenize_line(line.text)
+                if len(tokens) > 0:
+                    name, *params = tokens
+                    if Parser.is_directive(name):
+                        # on directive
+                        directive_prototype = self.get_directive_prototype(name)
+                        directive = Directive(name, params, directive_prototype)
+                        directive.prototype = directive_prototype
+                        if not directive.verify():
+                            self.raise_error('invalid parameters passed', name)
+                        directive.execute(self)
+                    elif Parser.is_label(name):
+                        # on label link program location to label
+                        self.define_label(name)
+                    else:
+                        # on instruction expand parameters lazily
+                        params_expanded = []
+                        for param in params:
+                            symbol = self.defined_symbols.get(param)
+                            label = self.defined_labels.get(param)
+                            if label is not None:
+                                # found a known label (might be empty)
+                                params_expanded.append(label)
+                            elif symbol is not None:
+                                # found a symbol
+                                params_expanded.append(symbol)
+                            elif Parser.is_value(param):
+                                # found just a value
+                                params_expanded.append(Immediate(param))
+                            elif Parser.is_label(param):
+                                # new label, defer define it (leave empty)
+                                params_expanded.append(self.defer_label(param))
+                            else:
+                                # else just some unknown symbol
+                                self.raise_error('unknown symbol', param)
 
-                    imm = Immediate(name)
-                    line_elements = [imm] + params_expanded
-                    self.text_elements.append(line.map(line_elements))
+                        imm = Immediate(name)
+                        line_elements = [imm] + params_expanded
+                        self.text_elements.append(line.map(line_elements))
 
-                if self.parser.is_instruction(name):
+                    if Parser.is_instruction(name):
+                        self.current_loc += 1
+            else:
+                # already expanded in offspring context
+                name, *params = line.body
+                self.text_elements.append(line)
+                if Parser.is_instruction(name.value):
                     self.current_loc += 1
             self.current_row += 1
 
@@ -345,7 +305,6 @@ class ParserContext:
     def build(self):
         for line in self.text_elements:
             name, *params = line.body
-            print(name, params)
             vals = [self.parse_val(param.value) for param in params]
             instruction_prototype = self.get_instruction_prototype(name.value)
             instruction = Instruction(name.value, vals, instruction_prototype)
@@ -361,7 +320,7 @@ class ParserContext:
         buffer += '@loc       | instruction\n'
         loc = 0
         for line in self.text_elements:
-            buffer += '0x{:08x} | {}\n'.format(loc, line.text)
+            buffer += '0x{:08x} | {}\n'.format(loc, line.body_text)
             loc += 1
 
         return buffer
@@ -379,64 +338,6 @@ class ParserContext:
                 return True
             context = context.parent
         return False
-
-
-class SourceLine:
-    def __init__(self, filename, body, row):
-        self.filename = filename
-        self.body = body
-        self.row = row
-
-    def map(self, new_text):
-        return SourceLine(self.filename, new_text, self.row)
-
-    def get_short_info(self):
-        return '{}:{}'.format(self.filename, self.row)
-
-    def get_long_info(self):
-        return 'in \'{}\' at line {}'.format(self.filename, self.row)
-
-    @property
-    def text(self):
-        return ' '.join([str(elem) for elem in self.body])
-
-
-class SourceLinePart(SourceLine):
-    def __init__(self, source_line, col_start=None, col_end=None):
-        super().__init__(
-            source_line.filename, source_line.body, source_line.row)
-        self.col_start = col_start
-        self.col_end = col_end
-        if self.col_start is None or self.col_end is None:
-            self.col_len = 0
-        else:
-            self.col_len = col_end - col_start
-
-    @property
-    def text(self):
-        return '{}\n{}'.format(self.body, self.get_underline('~'))
-
-    def get_underline(self, char):
-        space = ' ' * self.col_start
-        underline = char * self.col_len
-        return space + underline
-
-    @classmethod
-    def of_whole_line(cls, source_line):
-        return cls(source_line)
-
-    @classmethod
-    def of_line_part(cls, source_line, col_start, col_end):
-        return cls(source_line, col_start, col_end)
-
-    @classmethod
-    def of_line_word(cls, source_line, word):
-        word_len = len(word)
-        word_col_start = source_line.body.find(word)
-        word_col_end = word_col_start + word_len
-        if word_col_start == -1:
-            return cls.of_whole_line(source_line)
-        return cls.of_line_part(source_line, word_col_start, word_col_end)
 
 
 class ParserError(Exception):
