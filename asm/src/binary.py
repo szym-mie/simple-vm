@@ -2,6 +2,7 @@ class BinaryWriter:
     def __init__(self, fp, binary_metadata):
         self.fp = fp
         self.binary_metadata = binary_metadata
+        self.encoding = 'ascii'
 
     def int_to_bytes(self, width, value):
         byte_order_name = self.binary_metadata.byte_order
@@ -65,7 +66,7 @@ class BinaryWriter:
         return self.int_to_bytes(self.binary_metadata.val_width, val)
 
     def str_to_bytes(self, val):
-        return bytes('{}\0'.format(val), encoding='ascii')
+        return bytes('{}\0'.format(val), encoding=self.encoding)
 
 
 class BinaryMetadata:

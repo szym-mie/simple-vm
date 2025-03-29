@@ -1,10 +1,12 @@
 class Parameter:
-    def __init__(self, name, doc_text):
+    def __init__(self, name, doc):
         self.name = name
-        self.doc_text = doc_text
+        self.doc = doc
 
-    def get_short_doc(self):
+    @property
+    def short_doc(self):
         return '{}'.format(self.name.lower())
 
-    def get_full_doc(self):
-        return '> {} - {}'.format(self.name.lower(), self.doc_text)
+    @property
+    def full_doc(self):
+        return '{} : {}'.format(self.name.lower(), self.doc)

@@ -5,81 +5,200 @@
     {
       "id": "0x00",
       "name": "nop",
-      "doc_text": "no operation",
+      "doc": "no operation",
       "params": [],
-      "consumed": 0,
-      "produced": 0
+      "consumed": [],
+      "produced": []
     },
     {
       "id": "0x01",
       "name": "i32",
-      "doc_text": "put one 32 bit integer on stack",
+      "doc": "put one 32 bit integer on stack",
       "params": [
         {
           "name": "val",
-          "doc_text": "integer value"
+          "doc": "integer value"
         }
       ],
-      "consumed": 0,
-      "produced": 1
+      "consumed": [],
+      "produced": [
+        {
+          "name": "val",
+          "doc": "integer value"
+        }
+      ]
     },
     {
       "id": "0x02",
       "name": "add",
-      "doc_text": "add two 32 bit integers",
+      "doc": "add two 32 bit integers",
       "params": [],
-      "consumed": 2,
-      "produced": 1
+      "consumed": [
+        {
+          "name": "a",
+          "doc": "first value"
+        },
+        {
+          "name": "b",
+          "doc": "second value"
+        }
+      ],
+      "produced": [
+        {
+          "name": "x",
+          "doc": "sum of values: a+b"
+        }
+      ]
     },
     {
       "id": "0x03",
       "name": "dec",
-      "doc_text": "decrement top of the stack in place",
+      "doc": "decrement top of the stack in place",
       "params": [],
-      "consumed": 0,
-      "produced": 0
+      "consumed": [],
+      "produced": []
     },
     {
       "id": "0x10",
       "name": "eq?",
-      "doc_text": "test if two 32 bit integers, producing 0/1 value",
+      "doc": "test two 32 bit integers, producing 0/1 value",
       "params": [],
-      "consumed": 2,
-      "produced": 1
+      "consumed": [
+        {
+          "name": "a",
+          "doc": "first value"
+        },
+        {
+          "name": "b",
+          "doc": "second value"
+        }
+      ],
+      "produced": [
+        {
+          "name": "x",
+          "doc": "1 if a == b, else 0"
+        }
+      ]
     },
     {
       "id": "0x11",
       "name": "ez?",
-      "doc_text": "test if top of stack is zero, producing 0/1 value",
+      "doc": "test if top of stack is zero, producing 0/1 value",
       "params": [],
-      "consumed": 0,
-      "produced": 1
+      "consumed": [],
+      "produced": [
+        {
+          "name": "x",
+          "doc": "1 if top == 0 else 0"
+        }
+      ]
     },
     {
       "id": "0x20",
       "name": "jez",
-      "doc_text": "jump to address if 0 is popped from the stack",
+      "doc": "jump to address if 0 is popped from the stack",
       "params": [
         {
           "name": "addr",
-          "doc_text": "jump address"
+          "doc": "jump address"
         }
       ],
-      "consumed": 1,
-      "produced": 0
+      "consumed": [
+         {
+          "name": "pred",
+          "doc": "jump predicate, jump if 1"
+        }
+      ],
+      "produced": []
     },
     {
       "id": "0x21",
       "name": "jnz",
-      "doc_text": "jump to address if not 0 is popped from the stack",
+      "doc": "jump to address if not 0 is popped from the stack",
       "params": [
         {
           "name": "addr",
-          "doc_text": "jump address"
+          "doc": "jump address"
         }
       ],
-      "consumed": 1,
-      "produced": 0
+      "consumed": [
+         {
+          "name": "pred",
+          "doc": "jump predicate, jump if 0"
+        }
+      ],
+      "produced": []
+    },
+    {
+      "id": "0x40",
+      "name": "ldi",
+      "doc": "load 32 bit integer from fixed address",
+      "params": [
+        {
+          "name": "addr",
+          "doc": "fixed address"
+        }
+      ],
+      "consumed": [],
+      "produced": [
+        {
+          "name": "val",
+          "doc": "loaded value"
+        }
+      ]
+    },
+    {
+      "id": "0x41",
+      "name": "lds",
+      "doc": "load 32 bit integer from stack address",
+      "params": [],
+      "consumed": [
+        {
+          "name": "addr",
+          "doc": "address to load from"
+        }
+      ],
+      "produced": [
+        {
+          "name": "val",
+          "doc": "loaded value"
+        }
+      ]
+    },
+    {
+      "id": "0x42",
+      "name": "sti",
+      "doc": "store 32 bit integer to fixed address",
+      "params": [
+        {
+          "name": "addr",
+          "doc": "fixed address"
+        }
+      ],
+      "consumed": [
+        {
+          "name": "val",
+          "doc": "value to store"
+        }
+      ],
+      "produced": []
+    },
+    {
+      "id": "0x43",
+      "name": "sts",
+      "doc": "store 32 bit integer to stack address",
+      "params": [],
+      "consumed": [
+        {
+          "name": "val",
+          "doc": "value to store"
+        },
+        {
+          "name": "addr",
+          "doc": "address to store to"
+        }
+      ],
+      "produced": []
     }
   ]
 }

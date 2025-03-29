@@ -38,29 +38,31 @@ class InstructionSet:
                         message = 'missing \'{}\' property'.format(key)
                         raise InstructionLoadError(message, instruction_name)
 
-                params = []
-                for raw_param in try_get_instruction_property('params'):
-                    def try_get_param_property(key):
-                        try:
-                            return raw_param[key]
-                        except KeyError:
-                            param_name = raw_param.get('name', '')
-                            message = 'missing \'{}\' property'.format(key)
-                            raise InstructionLoadError(message, param_name)
+                def get_params(raw_params):
+                    params = []
+                    for raw_param in raw_params:
+                        def try_get_param_property(key):
+                            try:
+                                return raw_param[key]
+                            except KeyError:
+                                param_name = raw_param.get('name', '')
+                                message = 'missing \'{}\' property'.format(key)
+                                raise InstructionLoadError(message, param_name)
 
-                    param = Parameter(
-                        try_get_param_property('name'),
-                        try_get_param_property('doc_text')
-                    )
-                    params.append(param)
+                        param = Parameter(
+                            try_get_param_property('name'),
+                            try_get_param_property('doc')
+                        )
+                        params.append(param)
+                    return params
 
                 instruction = InstructionPrototype(
                     try_get_instruction_property('id'),
                     try_get_instruction_property('name'),
-                    try_get_instruction_property('doc_text'),
-                    try_get_instruction_property('params'),
-                    try_get_instruction_property('consumed'),
-                    try_get_instruction_property('produced')
+                    try_get_instruction_property('doc'),
+                    get_params(try_get_instruction_property('params')),
+                    get_params(try_get_instruction_property('consumed')),
+                    get_params(try_get_instruction_property('produced'))
                 )
                 self.instructions.append(instruction)
 

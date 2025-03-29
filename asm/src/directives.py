@@ -6,7 +6,7 @@ def directive_import(parser_context, val_list):
     filename, *_rest = val_list
     child_parser_context = parser_context.new_child_context(filename)
     child_parser_context.substitute()
-    parser_context.add_text_source(child_parser_context.text_expanded)
+    parser_context.add_text_source(child_parser_context.text_elements)
 
 def directive_define(parser_context, val_list):
     name, replacement, *_rest = val_list
