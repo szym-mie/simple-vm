@@ -9,6 +9,14 @@ class InstructionPrototype(AbstractCommandPrototype):
         self.produces = produces
 
     @property
+    def consume_count(self):
+        return len(self.consumes)
+
+    @property
+    def produce_count(self):
+        return len(self.produces)
+
+    @property
     def short_doc(self):
         return '{} {} -{} +{}'.format(
             self.name,

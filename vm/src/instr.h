@@ -21,8 +21,8 @@ struct instr
 	int32_t *params;
 };
 
-#define CONSUME(PTR) stack_pop(s, PTR)
-#define PRODUCE(VAL) stack_push(s, VAL)
+#define CONSUME(PTR) stack_pop(st, PTR)
+#define PRODUCE(VAL) stack_push(st, VAL)
 #define NEXT_LOC() (*loc)++
 #define SET_LOC(LOC) *loc = LOC
 

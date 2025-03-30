@@ -79,7 +79,7 @@ class CInstructionTemplateWriter:
         ] * count
 
         for instruction in instructions:
-            pc = instruction.consumed
+            pc = instruction.consume_count
             bin_id = instruction.bin_id
             fn = create_instr_fn_of(instruction)
             
@@ -95,7 +95,7 @@ class CInstructionTemplateWriter:
             CInclude(self.path_macro_include, False),
             Newline(),
         ] + instr_code + [
-            CVarDefine(instr_array_ts, 'ist_set', entries)
+            CVarDefine(instr_array_ts, 'instr_set', entries)
         ])
 
         code_include = CCode([

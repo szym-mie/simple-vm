@@ -2,13 +2,12 @@
 
 char *meta_attr_read(FILE *f)
 {
-    uint16_t len;
-
+    uint16_t len = 0;
     char buf[1024];
-    for (len = 0;; len++)
+    for (;;)
     {
         int c = fgetc(f);
-        buf[len] = c;
+        buf[len++] = c;
         if (c == '\0') break;
         if (c == EOF || len == sizeof(buf)) return NULL;
     }

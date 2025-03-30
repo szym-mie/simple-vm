@@ -2,7 +2,7 @@
 
 #include "meta_attr.h"
 #include "program.h"
-#include "ist0_set.h"
+#include "instruction_set_0.h"
 
 int
 main(int argc, char *argv[])
@@ -18,9 +18,9 @@ main(int argc, char *argv[])
 	stack.max_elem_count = 1024;
 
 	printf("load %s...\n", filename);
-	program_load(&prog, ist0_set, filename);
+	program_load(&prog, instr_set, filename);
 	printf("loaded.\n");
-	printf("meta attributes:\n\n");
+	printf("meta attributes (%d):\n", prog.meta_attr_count);
 
 	for (slen_t i = 0; i < prog.meta_attr_count; i++)
 	{
@@ -29,7 +29,7 @@ main(int argc, char *argv[])
 	}
 
 	printf("run program...\n");
-	program_run(&prog, ist0_set, &stack);
+	program_run(&prog, instr_set, &stack);
 	printf("end stack:\n\n");
 	
 	for (;;)
