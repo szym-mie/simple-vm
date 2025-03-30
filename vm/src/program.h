@@ -37,7 +37,8 @@ int program_run
 (
 		struct program *program,
 		struct instr_def instr_defs[MAX_SET], 
-		struct stack *stack
+		struct stack *stack,
+		struct heap *heap
 );
 int program_verify_sig(char *sig);
 

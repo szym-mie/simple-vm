@@ -4,8 +4,13 @@
 #include <stdint.h>
 
 #include "stack.h"
+#include "heap.h"
 
-#define INSTR_PARAMS uint32_t *loc, struct stack *s, const int32_t *pv
+#define INSTR_PARAMS  \
+    uint32_t *loc,    \
+    struct stack *st, \
+    struct heap *hp,  \
+    const int32_t *pv
 #define INSTR_FN(QN) void QN(INSTR_PARAMS)
 #define INSTR_ENTRY(ID, FN, PC) [ID] = { .fn = FN, .params_consumed = PC }
 

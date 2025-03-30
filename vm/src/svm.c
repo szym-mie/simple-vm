@@ -10,12 +10,19 @@ main(int argc, char *argv[])
 	// TODO parse arguments
 	const char *filename = argv[1];
 	struct program prog;
+
 	struct stack stack;
 	int32_t stack_arr[1024];
 
 	stack.stack = stack_arr;
 	stack.elem_count = 0;
 	stack.max_elem_count = 1024;
+
+	struct heap heap;
+	int32_t heap_arr[4096];
+
+	heap.heap = heap_arr;
+	heap.max_elem_count = 4096;
 
 	printf("load %s...\n", filename);
 	program_load(&prog, instr_set, filename);
@@ -29,7 +36,7 @@ main(int argc, char *argv[])
 	}
 
 	printf("run program...\n");
-	program_run(&prog, instr_set, &stack);
+	program_run(&prog, instr_set, &stack, &heap);
 	printf("end stack:\n\n");
 	
 	for (;;)

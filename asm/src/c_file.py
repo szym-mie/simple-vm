@@ -50,6 +50,7 @@ class CInstructionTemplateWriter:
         instr_params = [
             CParam(CTypeSpec('loc_t', '*'), 'loc'),
             CParam(CTypeSpec('struct stack', '*'), 'st'),
+            CParam(CTypeSpec('struct heap', '*'), 'hp'),
             CParam(CTypeSpec('const word_t', '*'), 'pv')
         ]
 
@@ -75,7 +76,7 @@ class CInstructionTemplateWriter:
         instr_code = []
 
         entries = [
-            {'fn': ('&', 'no_such_instr'), 'params_consumed': 0}
+            {'fn': ('&', 'no_such'), 'params_consumed': 0}
         ] * count
 
         for instruction in instructions:
@@ -88,7 +89,7 @@ class CInstructionTemplateWriter:
             entries[bin_id] = {'fn': ('&', fn.name), 'params_consumed': pc}
 
         instr_code.extend((create_instr_fn(
-            'no_such_instr', 
+            'no_such',
             'executed when unmapped instruction opcode was read'), Newline()))
 
         code_source = CCode([
@@ -106,7 +107,7 @@ class CInstructionTemplateWriter:
                 CInclude('instr.h', False),
                 CInclude('program.h', False),
                 Newline(),
-                CVarDeclare(instr_array_ts, 'ist_set', 'extern'),
+                CVarDeclare(instr_array_ts, 'instr_set', 'extern'),
                 Newline(),
             ])
         ])

@@ -81,7 +81,8 @@ int program_run
 (
 		struct program *program,
 		struct instr_def instr_defs[MAX_SET], 
-		struct stack *stack
+		struct stack *stack,
+		struct heap *heap
 )
 {
 	loc_t loc = program->start_loc;
@@ -92,7 +93,7 @@ int program_run
 		instr = program->instrs + loc;
 		// TODO currently does not support location changes
 		// TODO return from instruction fn to serve exceptions
-		instr_defs[instr->id].fn(&loc, stack, instr->params);
+		instr_defs[instr->id].fn(&loc, stack, heap, instr->params);
 	}
 
 	return 1;
