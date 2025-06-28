@@ -9,6 +9,10 @@ class InstructionPrototype(AbstractCommandPrototype):
         self.produces = produces
 
     @property
+    def param_count(self):
+        return len(self.params)
+
+    @property
     def consume_count(self):
         return len(self.consumes)
 

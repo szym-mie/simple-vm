@@ -12,7 +12,7 @@
     },
     {
       "id": "0x01",
-      "name": "i32",
+      "name": "put",
       "doc": "put one 32 bit integer on stack",
       "params": [
         {
@@ -131,7 +131,7 @@
     },
     {
       "id": "0x40",
-      "name": "ldi",
+      "name": "ldi4",
       "doc": "load 32 bit integer from fixed address",
       "params": [
         {
@@ -149,7 +149,7 @@
     },
     {
       "id": "0x41",
-      "name": "lds",
+      "name": "lds4",
       "doc": "load 32 bit integer from stack address",
       "params": [],
       "consumed": [
@@ -167,7 +167,7 @@
     },
     {
       "id": "0x42",
-      "name": "sti",
+      "name": "sti4",
       "doc": "store 32 bit integer to fixed address",
       "params": [
         {
@@ -185,8 +185,79 @@
     },
     {
       "id": "0x43",
-      "name": "sts",
+      "name": "sts4",
       "doc": "store 32 bit integer to stack address",
+      "params": [],
+      "consumed": [
+        {
+          "name": "val",
+          "doc": "value to store"
+        },
+        {
+          "name": "addr",
+          "doc": "address to store to"
+        }
+      ],
+      "produced": []
+    },
+        {
+      "id": "0x44",
+      "name": "ldi1",
+      "doc": "load 8 bit integer from fixed address",
+      "params": [
+        {
+          "name": "addr",
+          "doc": "fixed address"
+        }
+      ],
+      "consumed": [],
+      "produced": [
+        {
+          "name": "val",
+          "doc": "loaded value"
+        }
+      ]
+    },
+    {
+      "id": "0x45",
+      "name": "lds1",
+      "doc": "load 8 bit integer from stack address",
+      "params": [],
+      "consumed": [
+        {
+          "name": "addr",
+          "doc": "address to load from"
+        }
+      ],
+      "produced": [
+        {
+          "name": "val",
+          "doc": "loaded value"
+        }
+      ]
+    },
+    {
+      "id": "0x46",
+      "name": "sti1",
+      "doc": "store 8 bit integer to fixed address",
+      "params": [
+        {
+          "name": "addr",
+          "doc": "fixed address"
+        }
+      ],
+      "consumed": [
+        {
+          "name": "val",
+          "doc": "value to store"
+        }
+      ],
+      "produced": []
+    },
+    {
+      "id": "0x47",
+      "name": "sts1",
+      "doc": "store 8 bit integer to stack address",
       "params": [],
       "consumed": [
         {

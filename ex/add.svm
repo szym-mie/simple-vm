@@ -1,6 +1,6 @@
 @define a 8
 @define b 11
 
-i32 a
-i32 b
+put a
+put b
 add

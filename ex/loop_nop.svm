@@ -1,3 +1,3 @@
 init:
-i32 1
+put 1
 jez init:

@@ -7,5 +7,5 @@
 // test if labels location works properly
 @import loop_nop.svm
 
-i32 7
+put 7
 add

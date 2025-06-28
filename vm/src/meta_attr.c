@@ -1,9 +1,11 @@
 #include "meta_attr.h"
 
+#define BUF_LEN 4096
+
 char *meta_attr_read(FILE *f)
 {
-    uint16_t len = 0;
-    char buf[1024];
+    slen_t len = 0;
+    char buf[BUF_LEN];
     for (;;)
     {
         int c = fgetc(f);
@@ -14,7 +16,7 @@ char *meta_attr_read(FILE *f)
 
     char *str = malloc(len);
     if (str == NULL) return NULL;
-    for (uint16_t i = 0; i < len; i++) *(str+i) = buf[i];
+    for (slen_t i = 0; i < len; i++) *(str+i) = buf[i];
     return str;
 }
 

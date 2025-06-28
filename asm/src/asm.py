@@ -21,7 +21,6 @@ if __name__ == '__main__':
     arg_parser.add_argument('-o',
                             dest='output_filename',
                             metavar='output',
-                            nargs=1,
                             help='assembled SVM binary filename',
                             default='aaa.svm.out')
     arg_parser.add_argument('--val-size',

@@ -80,7 +80,7 @@ class CInstructionTemplateWriter:
         ] * count
 
         for instruction in instructions:
-            pc = instruction.consume_count
+            pc = instruction.param_count
             bin_id = instruction.bin_id
             fn = create_instr_fn_of(instruction)
             
@@ -157,6 +157,7 @@ class CElement:
         if value_t is tuple:
             op, name = value
             return '{}{}'.format(op, name)
+        return None
 
     def _get_pre_code(self, cs):
         return []

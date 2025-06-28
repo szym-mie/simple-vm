@@ -1,5 +1,5 @@
 // counter
-i32 5
+put 5
 
 loop:
 dec

@@ -32,7 +32,7 @@ class SourceLinePart(SourceLine):
             source_line.filename, source_line.text, source_line.row)
         self.col_start = col_start
         self.col_end = col_end
-        if self.col_start is None or self.col_end is None:
+        if col_start is None or col_end is None:
             self.col_len = 0
         else:
             self.col_len = col_end - col_start
@@ -42,6 +42,8 @@ class SourceLinePart(SourceLine):
         return '{}\n{}'.format(self.text, self.get_underline('~'))
 
     def get_underline(self, char):
+        if self.col_start is None:
+            return ''
         space = ' ' * self.col_start
         underline = char * self.col_len
         return space + underline
